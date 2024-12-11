@@ -4,7 +4,7 @@ import sqlite3
 
 from PyQt6.QtWidgets import QWidget, QApplication, QTableWidgetItem
 from PyQt6 import uic
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QPoint
 from addCoffee import addCoffeeValue
 
 
@@ -104,11 +104,11 @@ class Coffee(QWidget):
         self.tableWidget.itemChanged.connect(self.change_value)
         self.con = sqlite3.connect("coffee.sqlite")
         self.cur = self.con.cursor()
-        self.titles = [descr[0] for descr in self.cur.description]
         self.modified = dict()
 
     def set_values(self):
         result = self.cur.execute("SELECT * FROM coffee_options").fetchall()
+        self.titles = [descr[0] for descr in self.cur.description]
         self.tableWidget.clear()
         if result:
             self.tableWidget.setRowCount(len(result))
@@ -124,15 +124,15 @@ class Coffee(QWidget):
         self.addCoffee.show()
 
     def change_value(self, item):
-        #self.modified[self.titles[0]] = 
-        '''
-        self.modified[self.titles[item.column()]] = item.text()
-        que = "UPDATE coffee_options SET\n"
-        que += "\n".join([f"{key} = {self.titles[key]}" for key in self.modified.keys()])
-        que += "WHERE id = ?"
-        self.cur.execute(que, (self.item))
-        '''
-        print(self.item.row())
+        if self.tableWidget.currentRow() != -1:
+            self.modified[self.titles[item.column()]] = item.text()
+            print(self.modified)
+            que = "UPDATE coffee_options SET\n"
+            que += "\n".join([f"{key}='{self.modified.get(key)}'" for key in self.modified.keys()])
+            que += "WHERE id = ?"
+            self.cur.execute(que, (self.tableWidget.item(item.row(), 0).text(), ))
+            self.con.commit()
+            self.set_values()
 
     def closeEvent(self, event):
         if self.addCoffee:

@@ -242,7 +242,7 @@ class addCoffeeValue(QWidget):
             texts = [texts[i] if i < 5 else float(texts[i]) for i in range(len(texts))] 
             self.cur.execute('''INSERT INTO coffee_options VALUES (?, ?, ?, ?, ?, ?, ?)''', (None,) + tuple(texts))
             self.con.commit()
-            self.resultLabel.setText("Значение успешно добавлено.")
+            self.resultLabel.setText("Значение успешно добавлено. Обновите таблицу.")
         else:
             self.resultLabel.setText("Одно или несколько значений некорректны, проверьте поля и повторите попытку.")
 
